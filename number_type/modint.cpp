@@ -1,0 +1,207 @@
+//https://github.com/Hinakomufu/mufu-library/blob/main/number_type/modint
+#include <bits/stdc++.h>
+using namespace std;
+
+template<int mod=998244353>
+//template<int mod=1000000007>
+struct modint{
+    int v;
+
+    constexpr modint(long const _v=0){
+        long x=_v%mod;
+        if(x<0) x+=mod;
+        v=static_cast<int>(x);
+    }
+
+    constexpr operator int() const{ return v; }
+    static constexpr int mod_val(){ return mod; }
+    constexpr modint operator-() const{ return modint(v==0?0:mod-v); }
+
+    static constexpr modint raw(int v){
+        modint x;
+        x.v=v;
+        return x;
+    }
+
+    friend std::istream&operator>>(std::istream&is,modint&m){
+        long x;
+        is>>x;
+        m=modint(x);
+        return is;
+    }
+
+    friend std::ostream&operator<<(std::ostream&os,const modint&m){
+        return os<<m.v;
+    }
+
+    constexpr modint&operator=(long const x){
+        long y=x%mod;
+        if(y<0) y+=mod;
+        v=static_cast<int>(y);
+        return *this;
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    constexpr modint operator+(T x) const{
+        return *this+modint(x);
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    friend constexpr modint operator+(T x,const modint&m){
+        return modint(x)+m;
+    }
+
+    constexpr modint operator+(const modint&other) const{
+        int x=v+other.v;
+        if(x>=mod) x-=mod;
+        return modint(x);
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    constexpr modint operator-(T x) const{
+        return *this-modint(x);
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    friend constexpr modint operator-(T x,const modint&m){
+        return modint(x)-m;
+    }
+
+    constexpr modint operator-(const modint&other) const{
+        int x=v-other.v;
+        if(x<0) x+=mod;
+        return modint(x);
+    }
+
+    constexpr modint operator*(const modint&other) const{
+        return modint(1LL*v*other.v%mod);
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    constexpr modint operator*(T x) const{
+        return *this*modint(x);
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    friend constexpr modint operator*(T x,const modint&m){
+        return modint(x)*m;
+    }
+
+    constexpr modint pow(long n) const{
+        if(n<0) return inv().pow(-n);
+        modint r(1),x(*this);
+        while(n>0){
+            if(n&1) r=r*x;
+            x=x*x;
+            n>>=1;
+        }
+        return r;
+    }
+
+    constexpr modint inv() const{ // mod:prime only
+        return pow(mod-2);
+    }
+
+    constexpr modint operator/(const modint&other) const{
+        return *this*other.inv();
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    constexpr modint operator/(T x) const{
+        return *this*modint(x).inv();
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    friend constexpr modint operator/(T x,const modint&m){
+        return modint(x)*m.inv();
+    }
+
+    constexpr modint&operator+=(const modint&other){
+        v+=other.v;
+        if(v>=mod) v-=mod;
+        return *this;
+    }
+
+    constexpr modint&operator-=(const modint&other){
+        v-=other.v;
+        if(v<0) v+=mod;
+        return *this;
+    }
+
+    constexpr modint&operator*=(const modint&other){
+        v=static_cast<int>(1LL*v*other.v%mod);
+        return *this;
+    }
+
+    constexpr modint&operator/=(const modint&other){
+        return *this*=other.inv();
+    }
+
+    constexpr modint&operator++(){
+        v++;
+        if(v==mod) v=0;
+        return *this;
+    }
+
+    constexpr modint operator++(int){
+        modint tmp=*this;
+        ++*this;
+        return tmp;
+    }
+
+    constexpr modint&operator--(){
+        if(v==0) v=mod-1;
+        else v--;
+        return *this;
+    }
+
+    constexpr modint operator--(int){
+        modint tmp=*this;
+        --*this;
+        return tmp;
+    }
+
+    friend constexpr bool operator==(const modint&a,const modint&b){
+        return a.v==b.v;
+    }
+
+    friend constexpr bool operator!=(const modint&a,const modint&b){
+        return a.v!=b.v;
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    constexpr bool operator==(T x) const{
+        return v==x;
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    constexpr bool operator!=(T x) const{
+        return v!=x;
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    friend constexpr bool operator==(T x,const modint&m){
+        return x==m.v;
+    }
+
+    template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0>
+    friend constexpr bool operator!=(T x,const modint&m){
+        return x!=m.v;
+    }
+};
+
+using mint=modint<>;
+template<class T,std::enable_if_t<std::is_integral_v<T>,int> =0> mint modpow(mint const a,T const n){ return a.pow(n); }
+
+int main(){
+    // ABC360_E
+    int n,k;
+    cin>>n>>k;
+    vector<mint> e(k+1);
+    e[0]=1;
+    for(int i=0;i<k;i++){
+        e[i+1]=e[i]*(n-2)/n+mint(n+1)/n;
+    }
+    cout<<e[k]<<endl;
+    return 0;
+}

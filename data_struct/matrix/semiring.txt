@@ -1,0 +1,41 @@
+template<class T>
+struct min_plus{
+    static T add(T const a,T const b){ return min(a,b); }
+    static T zero(){ return inf; }
+
+    static T mul(T const a,T const b){ return a+b; }
+    static T one(){ return 0; }
+
+    static bool is_inf(T const x){ return x>=zero(); }
+};
+
+template<class T>
+struct max_plus{
+    static T add(T const a,T const b){ return max(a,b); }
+    static T zero(){ return -inf; }
+
+    static T mul(T const a,T const b){ return a+b; }
+    static T one(){ return 0; }
+
+    static bool is_inf(T const x){ return x<=zero(); }
+};
+
+struct or_and{
+    static bool add(bool const a,bool const b){ return a||b; }
+    static bool zero(){ return false; }
+
+    static bool mul(bool const a,bool const b){ return a&&b; }
+    static bool one(){ return true; }
+
+    static bool is_inf(bool const x){ return x==zero(); }
+};
+
+struct xor_and{
+    static int add(int const a,int const b){ return a^b; }
+    static int zero(){ return 0; }
+
+    static int mul(int const a,int const b){ return a&b; }
+    static int one(){ return ~0; }
+
+    static bool is_inf(int x){ return x==zero(); }
+};
