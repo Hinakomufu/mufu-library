@@ -1,3 +1,4 @@
+//https://github.com/Hinakomufu/mufu-library/blob/main/graph/tree/tree(lazy_segtree).cpp
 #include <bits/stdc++.h>
 using namespace std;
 long inf=1e18;
