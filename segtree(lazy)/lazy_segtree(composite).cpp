@@ -275,6 +275,14 @@ struct segtree{ // lazy operation
         using T=typename M::T;
         using F=typename M::F;
 
+        // clang-format off
+        segtree():len(0),size(1),value(2,M::e()),lazy(2,M::id()){}
+        segtree(segtree&&)=default;
+        segtree&operator=(segtree&&)=default;
+        segtree(const segtree&)=default;
+        segtree&operator=(const segtree&)=default;
+        // clang-format on
+
         explicit segtree(vector<T> const&arr){
             len=static_cast<int>(arr.size());
             size=1;
