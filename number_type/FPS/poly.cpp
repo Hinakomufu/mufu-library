@@ -1,4 +1,4 @@
-//https://github.com/Hinakomufu/mufu-library/edit/main/number_type/FPS/poly.cpp
+//https://github.com/Hinakomufu/mufu-library/blob/main/number_type/FPS/poly.cpp
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -1080,7 +1080,7 @@ struct poly{
             if(n==0)return poly(mint(0));
             if(n==1)return poly(y[0]);
 
-            if(r==mint(0)){return poly(y[1],(y[0]-y[1])/a);}
+            if(r==mint(0)){ return poly(y[1],(y[0]-y[1])/a); }
             assert(a!=mint(0));
 
             vector<mint> pow_r(n+1);
@@ -1095,13 +1095,13 @@ struct poly{
             inv_s[0]=1;
 
             for(int i=0;i<n;i++){
-                if(i>0){s*=mint(1)-pow_r[i];}
+                if(i>0){ s*=mint(1)-pow_r[i]; }
                 pow_r[i+1]=pow_r[i]*r;
                 pow_invr[i+1]=pow_invr[i]*inv_r;
             }
 
             inv_s[n-1]=s.inv();
-            for(int i=n-2;i>=0;i--){inv_s[i]=inv_s[i+1]*(mint(1)-pow_r[i+1]);}
+            for(int i=n-2;i>=0;i--){ inv_s[i]=inv_s[i+1]*(mint(1)-pow_r[i+1]); }
             s*=mint(1)-pow_r[n];
 
             vector<mint> yy=y;
@@ -1113,15 +1113,14 @@ struct poly{
                 yy[i]*=inv_s[n-i-1];
                 if(i&1)yy[i]=-yy[i];
 
-                if(i!=n-1){v*=pow_invr[n-2-i];}
+                if(i!=n-1){ v*=pow_invr[n-2-i]; }
             }
 
             vector<mint> f1(n+1);
             v=1;
 
             for(int i=0;i<=n;i++){
-                if(i==0||i==n){f1[i]=v;}
-                else{f1[i]=v*s*inv_s[i]*inv_s[n-i];}
+                if(i==0||i==n){ f1[i]=v; } else{ f1[i]=v*s*inv_s[i]*inv_s[n-i]; }
                 if(i&1)f1[i]=-f1[i];
                 v*=pow_r[i];
             }
@@ -1135,7 +1134,7 @@ struct poly{
             res.truncate(n-1);
 
             vector<mint> coeff=res.coeff();
-            coeff.resize(n, mint(0));
+            coeff.resize(n,mint(0));
             reverse(coeff.begin(),coeff.end());
             mint const inv_a=a.inv();
             v=1;
@@ -1147,7 +1146,17 @@ struct poly{
             return poly(coeff);
         }
 
-        void debug(int n=-1) const{
+        void debug(int const l,int const r,bool const line_break=false) const{
+            int const step=(l<=r?1:-1);
+            for(int i=l;;i+=step){
+                cout<<(*this)[i];
+                if(i==r) break;
+                cout<<(line_break?'\n':' ');
+            }
+            cout<<'\n';
+        }
+
+        void debug(int n=-1,bool const line_break=false) const{
             if(n<-1){
                 cout<<'\n';
                 return;
@@ -1159,7 +1168,10 @@ struct poly{
                 }
                 n=degree();
             }
-            for(int i=0;i<=n;i++){ cout<<(*this)[i]<<(i==n?"":" "); }
+            for(int i=0;i<=n;i++){
+                cout<<(*this)[i];
+                if(i!=n) cout<<(line_break?'\n':' ');
+            }
             cout<<'\n';
         }
 
