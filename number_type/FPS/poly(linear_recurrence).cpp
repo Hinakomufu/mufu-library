@@ -1,3 +1,4 @@
+//https://github.com/Hinakomufu/mufu-library/edit/main/number_type/FPS/poly(linear_recurrence).cpp
 #include <bits/stdc++.h>
 using namespace std;
 
