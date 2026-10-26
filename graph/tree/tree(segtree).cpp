@@ -10,7 +10,7 @@ struct tree_monoid{
     static T e(){ return T(0); }
 };
 
-template<typename T,typename M = tree_monoid<T>> struct tree{
+template<typename T,typename M = tree_monoid<T>> struct tree_hld{
     private:
         // node values on tree
 
@@ -301,20 +301,20 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
         }
 
         struct child_range{
-            tree&tr;
+            tree_hld&tr;
             int v;
             bool include_heavy;
 
-            child_range(tree&tr_,int const v_,bool const include_heavy_)
+            child_range(tree_hld&tr_,int const v_,bool const include_heavy_)
                 : tr(tr_), v(v_), include_heavy(include_heavy_){}
 
             struct iterator{
-                tree&tr;
+                tree_hld&tr;
                 int v;
                 int idx;
                 bool include_heavy;
 
-                iterator(tree&tr_,int const v_,int const idx_,bool const include_heavy_)
+                iterator(tree_hld&tr_,int const v_,int const idx_,bool const include_heavy_)
                     : tr(tr_), v(v_), idx(idx_), include_heavy(include_heavy_){
                     skip_nodes();
                 }
@@ -354,10 +354,10 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
         };
 
         struct node_proxy{
-            tree&tr;
+            tree_hld&tr;
             int v;
 
-            node_proxy(tree&tr_,int const v_)
+            node_proxy(tree_hld&tr_,int const v_)
                 : tr(tr_), v(v_){}
 
             operator T() const{ return tr.node_weight[v]; }
@@ -414,10 +414,10 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
             }
 
             struct update_proxy{
-                tree&tr;
+                tree_hld&tr;
                 int v;
 
-                update_proxy(tree&tr_,int const v_)
+                update_proxy(tree_hld&tr_,int const v_)
                     : tr(tr_), v(v_){}
 
                 update_proxy&operator=(T const x){
@@ -441,9 +441,9 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
         };
 
         struct edge_proxy{
-            tree&tr;
+            tree_hld&tr;
             int eid;
-            edge_proxy(tree&tr_,int const eid_): tr(tr_), eid(eid_){}
+            edge_proxy(tree_hld&tr_,int const eid_): tr(tr_), eid(eid_){}
 
             operator T() const{ return tr.edge_weight[eid]; }
 
@@ -458,9 +458,9 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
             }
 
             struct update_proxy{
-                tree&tr;
+                tree_hld&tr;
                 int eid;
-                update_proxy(tree&tr_,int const eid_): tr(tr_), eid(eid_){}
+                update_proxy(tree_hld&tr_,int const eid_): tr(tr_), eid(eid_){}
 
                 update_proxy&operator=(T const x){
                     tr.ensure_edge_seg_built();
@@ -485,9 +485,9 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
         };
 
         struct path_proxy{
-            tree&tr;
+            tree_hld&tr;
             int u,v;
-            path_proxy(tree&tr_,int const u_,int const v_): tr(tr_), u(u_), v(v_){}
+            path_proxy(tree_hld&tr_,int const u_,int const v_): tr(tr_), u(u_), v(v_){}
 
             T node_sum() const{ return tr.path_node_sum(u,v); }
             T edge_sum() const{ return tr.path_edge_sum(u,v); }
@@ -497,9 +497,9 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
         };
 
         struct subtree_proxy{
-            tree&tr;
+            tree_hld&tr;
             int v;
-            subtree_proxy(tree&tr_,int const v_): tr(tr_), v(v_){}
+            subtree_proxy(tree_hld&tr_,int const v_): tr(tr_), v(v_){}
 
             T node_sum() const{ return tr.subtree_node_sum(v); }
             T edge_sum() const{ return tr.subtree_edge_sum(v); }
@@ -598,12 +598,12 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
     public:
         vector<vector<tuple<int,T,int>>> gr;
 
-        explicit tree(int const n,vector<T> const&a):
+        explicit tree_hld(int const n,vector<T> const&a):
             node_weight(a), edge_weight(), node_count(n), edge_count(0), parent_(n,-1), depth_(n,0),
             parent_edge_(n,-1), child_edge_(), subtree_(n,0), heavy_(n,-1), head_(n,-1),
             pos_(n,-1), inv_pos_(n,-1), gr(n){}
 
-        explicit tree(int const n):
+        explicit tree_hld(int const n):
             node_weight(n,M::e()), edge_weight(), node_count(n), edge_count(0), parent_(n,-1), depth_(n,0),
             parent_edge_(n,-1), child_edge_(), subtree_(n,0), heavy_(n,-1), head_(n,-1),
             pos_(n,-1), inv_pos_(n,-1), gr(n){}
@@ -699,7 +699,7 @@ int main(){
 
     vector<long> a(n);
     for(int i=0;i<n;i++)cin>>a[i];
-    tree<long> tr(n,a);
+    tree_hld<long> tr(n,a);
     for(int i=1;i<n;i++){
         int p;
         cin>>p;
