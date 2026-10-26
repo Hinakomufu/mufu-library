@@ -1,3 +1,4 @@
+//https://github.com/Hinakomufu/mufu-library/blob/main/graph/tree/tree(segtree).cpp
 #include <bits/stdc++.h>
 using namespace std;
 long inf=1e18;
@@ -299,6 +300,59 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
             }
         }
 
+        struct child_range{
+            tree&tr;
+            int v;
+            bool include_heavy;
+
+            child_range(tree&tr_,int const v_,bool const include_heavy_)
+                : tr(tr_), v(v_), include_heavy(include_heavy_){}
+
+            struct iterator{
+                tree&tr;
+                int v;
+                int idx;
+                bool include_heavy;
+
+                iterator(tree&tr_,int const v_,int const idx_,bool const include_heavy_)
+                    : tr(tr_), v(v_), idx(idx_), include_heavy(include_heavy_){
+                    skip_nodes();
+                }
+
+                void skip_nodes(){
+                    while(idx<static_cast<int>(tr.gr[v].size())){
+                        int u=get<0>(tr.gr[v][idx]);
+                        if(u==tr.parent_[v]||(!include_heavy&&u==tr.heavy_[v]))++idx;
+                        else break;
+                    }
+                }
+
+                int operator*() const{ return get<0>(tr.gr[v][idx]); }
+
+                iterator&operator++(){
+                    ++idx;
+                    skip_nodes();
+                    return *this;
+                }
+
+                bool operator==(iterator const&other) const{
+                    return &tr==&other.tr&&v==other.v&&idx==other.idx;
+                }
+
+                bool operator!=(iterator const&other) const{ return !(*this==other); }
+            };
+
+            iterator begin(){
+                tr.ensure_hld_built();
+                return iterator(tr,v,0);
+            }
+
+            iterator end(){
+                tr.ensure_hld_built();
+                return iterator(tr,v,static_cast<int>(tr.gr[v].size()));
+            }
+        };
+
         struct node_proxy{
             tree&tr;
             int v;
@@ -307,6 +361,57 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
                 : tr(tr_), v(v_){}
 
             operator T() const{ return tr.node_weight[v]; }
+
+            int pos(){
+                tr.ensure_hld_built();
+                return tr.pos_[v];
+            }
+
+            int parent(){
+                tr.ensure_hld_built();
+                return tr.parent_[v];
+            }
+
+            int heavy_child(){
+                tr.ensure_hld_built();
+                return tr.heavy_[v];
+            }
+
+            int depth(){
+                tr.ensure_hld_built();
+                return tr.depth_[v];
+            }
+
+            int lca(int const other) const{
+                return tr.lca(v,other);
+            }
+
+            int heavy_path_head(){
+                tr.ensure_hld_built();
+                return tr.head_[v];
+            }
+
+            vector<int> heavy_path_vertices() const{
+                tr.ensure_hld_built();
+                vector<int> res;
+                for(int u=v;u!=-1;u=tr.heavy_[u])res.push_back(u);
+                return res;
+            }
+
+            child_range child(bool const include_heavy=true){
+                tr.ensure_hld_built();
+                return child_range(tr,v,include_heavy);
+            }
+
+            bool is_ancestor(int const other){
+                tr.ensure_hld_built();
+                return tr.pos_[v]<=tr.pos_[other]&&tr.pos_[other]<tr.pos_[v]+tr.subtree_[v];
+            }
+
+            bool is_leaf(){
+                tr.ensure_hld_built();
+                return tr.gr[v].size()==(tr.parent_[v]==-1?0:1);
+            }
 
             struct update_proxy{
                 tree&tr;
@@ -341,6 +446,16 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
             edge_proxy(tree&tr_,int const eid_): tr(tr_), eid(eid_){}
 
             operator T() const{ return tr.edge_weight[eid]; }
+
+            int parent_node(){
+                tr.ensure_hld_built();
+                return tr.parent_[tr.child_edge_[eid]];
+            }
+
+            int child_node(){
+                tr.ensure_hld_built();
+                return tr.child_edge_[eid];
+            }
 
             struct update_proxy{
                 tree&tr;
@@ -388,7 +503,12 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
 
             T node_sum() const{ return tr.subtree_node_sum(v); }
             T edge_sum() const{ return tr.subtree_edge_sum(v); }
-            int node_count() const{ return tr.subtree_[v]; }
+
+            int node_count() const{
+                tr.ensure_hld_built();
+                return tr.subtree_[v];
+            }
+
             vector<int> vertices() const{ return tr.subtree_vertices(v); }
         };
 
@@ -551,6 +671,7 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
 
         node_proxy node(int const v){ return node_proxy(*this,v); }
         edge_proxy edge(int const eid){ return edge_proxy(*this,eid); }
+
         path_proxy path(int const u,int const v){
             ensure_hld_built();
             return path_proxy(*this,u,v);
@@ -560,11 +681,6 @@ template<typename T,typename M = tree_monoid<T>> struct tree{
             ensure_hld_built();
             return subtree_proxy(*this,v);
         }
-
-        int parent(int const v) const{ return parent_[v]; }
-        int depth(int const v) const{ return depth_[v]; }
-        int subtree_size(int const v) const{ return subtree_[v]; }
-        int pos(int const v) const{ return pos_[v]; }
 };
 
 /*  template
@@ -581,7 +697,7 @@ int main(){
     int n,q;
     cin>>n>>q;
 
-    vector<long>a(n);
+    vector<long> a(n);
     for(int i=0;i<n;i++)cin>>a[i];
     tree<long> tr(n,a);
     for(int i=1;i<n;i++){
