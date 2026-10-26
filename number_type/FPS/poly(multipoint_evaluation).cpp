@@ -1316,7 +1316,17 @@ struct poly{
             return poly(coeff);
         }
 
-        void debug(int n=-1) const{
+        void debug(int const l,int const r,bool const line_break=false) const{
+            int const step=(l<=r?1:-1);
+            for(int i=l;;i+=step){
+                cout<<(*this)[i];
+                if(i==r) break;
+                cout<<(line_break?'\n':' ');
+            }
+            cout<<'\n';
+        }
+
+        void debug(int n=-1,bool const line_break=false) const{
             if(n<-1){
                 cout<<'\n';
                 return;
@@ -1328,9 +1338,13 @@ struct poly{
                 }
                 n=degree();
             }
-            for(int i=0;i<=n;i++){ cout<<(*this)[i]<<(i==n?"":" "); }
+            for(int i=0;i<=n;i++){
+                cout<<(*this)[i];
+                if(i!=n) cout<<(line_break?'\n':' ');
+            }
             cout<<'\n';
         }
+
 
         //
         vector<mint> multipoint_evaluation(const vector<mint>&x_vals) const;
