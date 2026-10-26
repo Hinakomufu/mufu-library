@@ -696,6 +696,8 @@ template<typename T> struct tree_hld{
     public:
         vector<vector<tuple<int,T,int>>> gr;
 
+        tree_hld() : node_count(0), edge_count(0){}
+
         explicit tree_hld(int const n,vector<T> const&a):
             node_weight(a), edge_weight(), node_count(n), edge_count(0), parent_(n,-1), depth_(n,0),
             parent_edge_(n,-1), child_edge_(), subtree_(n,0), heavy_(n,-1), head_(n,-1),
@@ -705,6 +707,39 @@ template<typename T> struct tree_hld{
             node_weight(n,T{}), edge_weight(), node_count(n), edge_count(0), parent_(n,-1), depth_(n,0),
             parent_edge_(n,-1), child_edge_(), subtree_(n,0), heavy_(n,-1), head_(n,-1),
             pos_(n,-1), inv_pos_(n,-1), gr(n){}
+
+        void initialize(int n){
+            initialize(n,vector<T>(n,M::e()));
+        }
+
+        void initialize(int n,vector<T> const& a){
+            assert((int)a.size()==n);
+
+            node_weight=a;
+            edge_weight.clear();
+
+            node_count=n;
+            edge_count=0;
+
+            parent_.assign(n,-1);
+            depth_.assign(n,0);
+            parent_edge_.assign(n,-1);
+            child_edge_.clear();
+            subtree_.assign(n,0);
+            heavy_.assign(n,-1);
+            head_.assign(n,-1);
+            pos_.assign(n,-1);
+            inv_pos_.assign(n,-1);
+
+            cur_pos=0;
+            hld_built=false;
+            node_seg_built=false;
+            edge_seg_built=false;
+
+            gr.assign(n,{});
+            node_seg=segtree();
+            edge_seg=segtree();
+        }
 
         void add_edge(int u,int v,T w=0,bool const undirected=true){
             gr[u].emplace_back(v,w,edge_count);
@@ -744,7 +779,7 @@ template<typename T> struct tree_hld{
 
         pair<int,int> diameter_weight() const{
             auto farthest=[&](int const start){
-                vector<long> dist(node_count,-1);
+                vector<T> dist(node_count,-1);
                 vector<int> st;
                 st.reserve(node_count);
                 st.push_back(start);
