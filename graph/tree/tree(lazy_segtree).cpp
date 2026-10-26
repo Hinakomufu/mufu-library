@@ -3,7 +3,7 @@
 using namespace std;
 long inf=1e18;
 
-template<typename T> struct tree{
+template<typename T> struct tree_hld{
     private:
         // node values on tree
 
@@ -316,20 +316,20 @@ template<typename T> struct tree{
         }
 
         struct child_range{
-            tree&tr;
+            tree_hld&tr;
             int v;
             bool include_heavy;
 
-            child_range(tree&tr_,int const v_,bool const include_heavy_)
+            child_range(tree_hld&tr_,int const v_,bool const include_heavy_)
                 : tr(tr_), v(v_), include_heavy(include_heavy_){}
 
             struct iterator{
-                tree&tr;
+                tree_hld&tr;
                 int v;
                 int idx;
                 bool include_heavy;
 
-                iterator(tree&tr_,int const v_,int const idx_,bool const include_heavy_)
+                iterator(tree_hld&tr_,int const v_,int const idx_,bool const include_heavy_)
                     : tr(tr_), v(v_), idx(idx_), include_heavy(include_heavy_){
                     skip_nodes();
                 }
@@ -404,11 +404,11 @@ template<typename T> struct tree{
         enum class update_kind{ node,edge,path_node,path_edge,subtree_node,subtree_edge };
 
         struct update_proxy{
-            tree&tr;
+            tree_hld&tr;
             update_kind kind;
             int u,v;
 
-            update_proxy(tree&tr_,update_kind const kind_,int const u_,int const v_=-1)
+            update_proxy(tree_hld&tr_,update_kind const kind_,int const u_,int const v_=-1)
                 : tr(tr_), kind(kind_), u(u_), v(v_){}
 
             void assign(T x){
@@ -482,11 +482,11 @@ template<typename T> struct tree{
         };
 
         struct node_proxy{
-            tree&tr;
+            tree_hld&tr;
             int v;
             update_proxy update;
 
-            node_proxy(tree&tr_,int const v_): tr(tr_), v(v_), update(tr_,update_kind::node,v_){}
+            node_proxy(tree_hld&tr_,int const v_): tr(tr_), v(v_), update(tr_,update_kind::node,v_){}
 
             operator T() const{
                 if(tr.node_seg_built)return tr.node_seg.get(tr.pos_[v]).val;
@@ -546,10 +546,10 @@ template<typename T> struct tree{
         };
 
         struct edge_proxy{
-            tree&tr;
+            tree_hld&tr;
             int eid;
             update_proxy update;
-            edge_proxy(tree&tr_,int const eid_): tr(tr_), eid(eid_), update(tr_,update_kind::edge,eid_){}
+            edge_proxy(tree_hld&tr_,int const eid_): tr(tr_), eid(eid_), update(tr_,update_kind::edge,eid_){}
 
             operator T() const{
                 if(tr.edge_seg_built){
@@ -571,12 +571,12 @@ template<typename T> struct tree{
         };
 
         struct path_proxy{
-            tree&tr;
+            tree_hld&tr;
             int u,v;
             update_proxy node_update;
             update_proxy edge_update;
 
-            path_proxy(tree&tr_,int u_,int v_)
+            path_proxy(tree_hld&tr_,int u_,int v_)
                 : tr(tr_), u(u_), v(v_),
                   node_update(tr_,update_kind::path_node,u_,v_),
                   edge_update(tr_,update_kind::path_edge,u_,v_){}
@@ -589,12 +589,12 @@ template<typename T> struct tree{
         };
 
         struct subtree_proxy{
-            tree&tr;
+            tree_hld&tr;
             int v;
             update_proxy node_update;
             update_proxy edge_update;
 
-            subtree_proxy(tree&tr_,int const v_):
+            subtree_proxy(tree_hld&tr_,int const v_):
                 tr(tr_), v(v_),
                 node_update(tr_,update_kind::subtree_node,v_),
                 edge_update(tr_,update_kind::subtree_edge,v_){}
@@ -696,12 +696,12 @@ template<typename T> struct tree{
     public:
         vector<vector<tuple<int,T,int>>> gr;
 
-        explicit tree(int const n,vector<T> const&a):
+        explicit tree_hld(int const n,vector<T> const&a):
             node_weight(a), edge_weight(), node_count(n), edge_count(0), parent_(n,-1), depth_(n,0),
             parent_edge_(n,-1), child_edge_(), subtree_(n,0), heavy_(n,-1), head_(n,-1),
             pos_(n,-1), inv_pos_(n,-1), gr(n){}
 
-        explicit tree(int const n):
+        explicit tree_hld(int const n):
             node_weight(n,T{}), edge_weight(), node_count(n), edge_count(0), parent_(n,-1), depth_(n,0),
             parent_edge_(n,-1), child_edge_(), subtree_(n,0), heavy_(n,-1), head_(n,-1),
             pos_(n,-1), inv_pos_(n,-1), gr(n){}
@@ -812,7 +812,7 @@ int main(){
 
     vector<long> a(n);
     for(int i=0;i<n;i++)cin>>a[i];
-    tree<long> tr(n,a);
+    tree_hld<long> tr(n,a);
     for(int i=1;i<n;i++){
         int p;
         cin>>p;
