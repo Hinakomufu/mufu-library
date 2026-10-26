@@ -315,6 +315,59 @@ template<typename T> struct tree{
             }
         }
 
+        struct child_range{
+            tree&tr;
+            int v;
+            bool include_heavy;
+
+            child_range(tree&tr_,int const v_,bool const include_heavy_)
+                : tr(tr_), v(v_), include_heavy(include_heavy_){}
+
+            struct iterator{
+                tree&tr;
+                int v;
+                int idx;
+                bool include_heavy;
+
+                iterator(tree&tr_,int const v_,int const idx_,bool const include_heavy_)
+                    : tr(tr_), v(v_), idx(idx_), include_heavy(include_heavy_){
+                    skip_nodes();
+                }
+
+                void skip_nodes(){
+                    while(idx<static_cast<int>(tr.gr[v].size())){
+                        int u=get<0>(tr.gr[v][idx]);
+                        if(u==tr.parent_[v]||(!include_heavy&&u==tr.heavy_[v]))++idx;
+                        else break;
+                    }
+                }
+
+                int operator*() const{ return get<0>(tr.gr[v][idx]); }
+
+                iterator&operator++(){
+                    ++idx;
+                    skip_nodes();
+                    return *this;
+                }
+
+                bool operator==(iterator const&other) const{
+                    return &tr==&other.tr&&v==other.v&&idx==other.idx;
+                }
+
+                bool operator!=(iterator const&other) const{ return !(*this==other); }
+            };
+
+            iterator begin(){
+                tr.ensure_hld_built();
+                return iterator(tr,v,0);
+            }
+
+            iterator end(){
+                tr.ensure_hld_built();
+                return iterator(tr,v,static_cast<int>(tr.gr[v].size()));
+            }
+        };
+
         void path_node_apply(int u,int v,T mul,T add){
             ensure_node_seg_built();
             while(head_[u]!=head_[v]){
@@ -439,6 +492,57 @@ template<typename T> struct tree{
                 if(tr.node_seg_built)return tr.node_seg.get(tr.pos_[v]).val;
                 return tr.node_weight[v];
             }
+
+            int pos(){
+                tr.ensure_hld_built();
+                return tr.pos_[v];
+            }
+
+            int parent(){
+                tr.ensure_hld_built();
+                return tr.parent_[v];
+            }
+
+            int heavy_child(){
+                tr.ensure_hld_built();
+                return tr.heavy_[v];
+            }
+
+            int depth(){
+                tr.ensure_hld_built();
+                return tr.depth_[v];
+            }
+
+            int lca(int const other) const{
+                return tr.lca(v,other);
+            }
+
+            int heavy_path_head(){
+                tr.ensure_hld_built();
+                return tr.head_[v];
+            }
+
+            vector<int> heavy_path_vertices() const{
+                tr.ensure_hld_built();
+                vector<int> res;
+                for(int u=v;u!=-1;u=tr.heavy_[u])res.push_back(u);
+                return res;
+            }
+
+            child_range child(bool const include_heavy=true){
+                tr.ensure_hld_built();
+                return child_range(tr,v,include_heavy);
+            }
+
+            bool is_ancestor(int const other){
+                tr.ensure_hld_built();
+                return tr.pos_[v]<=tr.pos_[other]&&tr.pos_[other]<tr.pos_[v]+tr.subtree_[v];
+            }
+
+            bool is_leaf(){
+                tr.ensure_hld_built();
+                return tr.gr[v].size()==(tr.parent_[v]==-1?0:1);
+            }
         };
 
         struct edge_proxy{
@@ -497,7 +601,12 @@ template<typename T> struct tree{
 
             T node_sum() const{ return tr.subtree_node_sum(v); }
             T edge_sum() const{ return tr.subtree_edge_sum(v); }
-            int node_count() const{ return tr.subtree_[v]; }
+
+            int node_count() const{
+                tr.ensure_hld_built();
+                return tr.subtree_[v];
+            }
+
             vector<int> vertices() const{ return tr.subtree_vertices(v); }
         };
 
@@ -669,26 +778,6 @@ template<typename T> struct tree{
         subtree_proxy subtree(int const v){
             ensure_hld_built();
             return subtree_proxy(*this,v);
-        }
-
-        int parent(int const v){
-            ensure_hld_built();
-            return parent_[v];
-        }
-
-        int depth(int const v){
-            ensure_hld_built();
-            return depth_[v];
-        }
-
-        int subtree_size(int const v){
-            ensure_hld_built();
-            return subtree_[v];
-        }
-
-        int pos(int const v){
-            ensure_hld_built();
-            return pos_[v];
         }
 
         void node_debug(){
