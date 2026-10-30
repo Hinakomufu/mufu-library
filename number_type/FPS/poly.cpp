@@ -721,6 +721,21 @@ struct poly{
             return poly(res);
         }
 
+        poly degree_shift(int const k) const{
+            if(k==0) return *this;
+            if(k>0){
+                vector<mint> res(size()+k);
+                for(int i=0;i<size();i++){
+                    res[i+k]=func[i];
+                }
+                return poly(res);
+            }
+            int const d=-k;
+            if(d>=size()) return poly(mint(0));
+            vector<mint> const res(func.begin()+d,func.end());
+            return poly(res);
+        }
+
         poly taylor_shift(mint const c) const{
             int const n=degree();
             vector<mint> res(n+1);
@@ -1175,6 +1190,34 @@ struct poly{
             cout<<'\n';
         }
 
+        void debug_exp(int const l,int const r,bool const line_break=false) const{
+            int const step=(l<=r?1:-1);
+            for(int i=l;;i+=step){
+                cout<<(*this)[i]*fact(i);
+                if(i==r) break;
+                cout<<(line_break?'\n':' ');
+            }
+            cout<<'\n';
+        }
+
+        void debug_exp(int n=-1,bool const line_break=false) const{
+            if(n<-1){
+                cout<<'\n';
+                return;
+            }
+            if(n==-1){
+                if(func.empty()){
+                    cout<<0<<'\n';
+                    return;
+                }
+                n=degree();
+            }
+            for(int i=0;i<=n;i++){
+                cout<<(*this)[i]*fact(i);
+                if(i!=n) cout<<(line_break?'\n':' ');
+            }
+            cout<<'\n';
+        }
         //
         vector<mint> multipoint_evaluation(const vector<mint>&x_vals) const;
 
